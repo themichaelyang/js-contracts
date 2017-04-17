@@ -1,9 +1,14 @@
 function defineFunction(definition) {
   return (...params) => {
-    if (definition.contracts.in(...params)) {
+    // will prevent rest variables -- use lists instead?
+    if (definition.func.length !== params.length) {
+      throw new Error("Incorrect number of parameters.");
+    }
+
+    if (definition.input(...params)) {
       let result = definition.func(...params);
 
-      if (definition.contracts.out(result)) { // but doesn't work for mutable data
+      if (definition.output(result)) { // but doesn't work for mutable data
         return result;
       }
       else {
@@ -25,8 +30,8 @@ let add1 = defineFunction({
   // contracts expect booleans -- but should they instead expect errors?
   // therefore contract breaks would be more contextual
   // also consider improving this syntax
-  contracts: {
-    in: (a) => { return Number.isSafeInteger(a); },
-    out: (out) => { return Number.isSafeInteger(out); }
-  }
-})
+  input: (a) => { return Number.isSafeInteger(a); },
+  output: (out) => { return Number.isSafeInteger(out); }
+});
+
+exports.add = add1;
